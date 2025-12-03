@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+@import "tailwindcss";
+
+/* --- theme ------  */
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+  themes: light --default;
+}
+
+/* ------- light theme color-------  */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  --color-base-100: #ffffff;
+  --color-base-200: #D9D9D9;
+  --color-base-300: #FAFDF0;
+  --color-base-content: oklch(20% 0.05 240);
+  --color-primary: #CAEB66;
+  --color-primary-content: #DEF29F;
+  --color-secondary: #03373D;
+  --color-secondary-content: #7367A9;
+  --color-accent: #606060;
+  --color-warning: #ff0000;
+  --color-accent-content: #E9ECF1;
+}
+
+body {
+  font-family: "Urbanist", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  @apply bg-base-200
+}
+
+.active {
+  @apply bg-primary
+}
+
+.btn-primary {
+  @apply bg-primary text-black
+}
+
+.btn-primary:hover {
+  @apply bg-primary-content
+}
+
+.btn-secondary {
+  @apply bg-secondary text-base-100
+}
+
+.btn-secondary:hover {
+  @apply bg-secondary-content
+}
+
+.btn-wrong {
+  @apply bg-red-500 text-black
+}
+
+.btn-wrong:hover {
+  @apply bg-red-300
+}
