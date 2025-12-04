@@ -154,7 +154,7 @@ async function run() {
                 query.status = status
             }
             if (district) {
-                query.district = district
+                query.riderDistrict = district
             }
             if (workStatus) {
                 query.workStatus = workStatus

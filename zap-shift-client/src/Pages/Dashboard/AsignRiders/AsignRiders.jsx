@@ -16,17 +16,25 @@ const AsignRiders = () => {
       return res.data;
     },
   });
+  // console.log(selectedParcel);
   const { data: riders = [] } = useQuery({
-    queryKey: ["riders", selectedParcel?.senderDistrict, "available"],
-    enabled: !!selectedParcel,
+    queryKey: [
+      "riders",
+      selectedParcel?.senderDistrict ?? "no-district",
+      "available",
+    ],
+    enabled: !!selectedParcel?.senderDistrict,
     queryFn: async () => {
       const res = await axiosSecure.get(
-        `/riders?status=approve&district=${selectedParcel?.senderDistrict}&workStatus=available`
+        `/riders?status=approved&district=${selectedParcel?.senderDistrict}&workStatus=available`
       );
+      console.log(res.data);
       return res.data;
     },
   });
+
   const handleAsignRider = (parcel) => {
+    // console.log(parcel.senderDistrict);
     riderModalRef.current.showModal();
     setSelectedParcel(parcel);
   };
@@ -51,7 +59,7 @@ const AsignRiders = () => {
           </thead>
           <tbody>
             {percels.map((parcel, i) => (
-              <tr>
+              <tr key={i}>
                 <th>{i + 1}</th>
                 <td>{parcel.parcelName}</td>
                 <td>{parcel.cost}</td>
