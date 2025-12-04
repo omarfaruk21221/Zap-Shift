@@ -81,6 +81,7 @@ const MyParcels = () => {
               <th>Reciver</th>
               <th>Cost</th>
               <th>Payment Status</th>
+              <th>Tracking Id</th>
               <th>Delivary Status</th>
               <th>Action</th>
             </tr>
@@ -94,7 +95,9 @@ const MyParcels = () => {
                 <td>{parcel.cost}</td>
                 <td>
                   {parcel.paymentStatus === "paid" ? (
-                    <div className="badge badge-success text-lg font-semibold">Paid</div>
+                    <div className="badge badge-success text-lg font-semibold">
+                      Paid
+                    </div>
                   ) : (
                     <button
                       onClick={() => handlePayment(parcel)}
@@ -104,9 +107,10 @@ const MyParcels = () => {
                     </button>
                   )}
                 </td>
+                <td>{parcel.trackingId}</td>
                 <td>
-                  <div className="badge badge-info">
-                    {parcel.delivaryStatus}
+                  <div className={`badge p-4 ${parcel.deliveryStatus==="pending-pickup"&& "bg-primary-content "}||${parcel.deliveryStatus==="complete"&& "bg-success "} `}>
+                    {parcel.deliveryStatus}
                   </div>
                 </td>
                 <td className=" space-x-2">

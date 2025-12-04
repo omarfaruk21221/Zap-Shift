@@ -3,9 +3,22 @@ import { Link, NavLink, Outlet } from "react-router";
 import Logo from "../Components/Logo/Logo";
 import { FaMotorcycle, FaUser } from "react-icons/fa6";
 import { FiHome } from "react-icons/fi";
-import { MdHistoryEdu, MdProductionQuantityLimits } from "react-icons/md";
+import {
+  MdBikeScooter,
+  MdHistoryEdu,
+  MdProductionQuantityLimits,
+} from "react-icons/md";
+import useRole from "../Hooks/useRole";
+import RoundLoader from "../Components/Spinner/RoundLoader";
 
 const DashboardLayout = () => {
+  const { role, roleLoading } = useRole();
+
+  if (roleLoading) {
+    return <RoundLoader />;
+  }
+
+  console.log(role);
   const DashboardLinks = (
     <>
       {/* <li>
@@ -41,28 +54,45 @@ const DashboardLayout = () => {
           <span className="is-drawer-close:hidden">Payment History</span>
         </NavLink>
       </li>
-      {/* --- Approve Riders --  */}
-      <li>
-        <NavLink
-          to="/dashboard/approve-riders"
-          className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-          data-tip="Approve Riders"
-        >
-          <FaMotorcycle className="my-1.5 inline-block size-4" />
-          <span className="is-drawer-close:hidden">Aprrove Riders</span>
-        </NavLink>
-      </li>
-      {/* ==== Users Management ====  */}
-      <li>
-        <NavLink
-          to="/dashboard/users-Management"
-          className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-          data-tip="Users Management"
-        >
-          <FaUser className="my-1.5 inline-block size-4" />
-          <span className="is-drawer-close:hidden">Users Management</span>
-        </NavLink>
-      </li>
+
+      {/*  Admin Links */}
+      {role === "admin" && (
+        <>
+          {/* ===================== Aprrove riders============= */}
+          <li>
+            <NavLink
+              to="/dashboard/approve-riders"
+              className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              data-tip="Approve Riders"
+            >
+              <FaMotorcycle className="inline-block size-4" />
+              <span className="is-drawer-close:hidden">Approve Riders</span>
+            </NavLink>
+          </li>
+          {/* ======== asign riders=============== */}
+          <li>
+            <NavLink
+              to="/dashboard/asign-riders"
+              className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              data-tip="Asign Riders"
+            >
+              <MdBikeScooter className="inline-block size-4" />
+              <span className="is-drawer-close:hidden">Asign Riders</span>
+            </NavLink>
+          </li>
+          {/* =============== user management ======== */}
+          <li>
+            <NavLink
+              to="/dashboard/users-Management"
+              className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              data-tip="Users Management"
+            >
+              <FaUser className="inline-block size-4" />
+              <span className="is-drawer-close:hidden">Users Management</span>
+            </NavLink>
+          </li>
+        </>
+      )}
     </>
   );
   return (

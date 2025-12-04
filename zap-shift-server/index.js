@@ -70,20 +70,47 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
-        // ====create Db ===
+        // ====create Database =====
         const db = client.db("zpa_shift_DB");
         const parcelCollection = db.collection("parcels");
         const paymentCollection = db.collection("payments");
         const userCollection = db.collection("uesrs");
         const riderCollection = db.collection("riders");
-
+        //// middleware with database
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decode_email;
+            const query = { email }
+            const user = await userCollection.findOne(query)
+            if (!user || user.role !== 'admin') {
+                return res.status(403).send({ massage: 'forbidden access' })
+            }
+            next()
+        }
 
         //====== user related Api ======
         app.get('/users', verifyFBToken, async (req, res) => {
-            const cursor = userCollection.find()
+            const searchText = req.query.searchText
+            const query = {}
+            if (searchText) {
+                // query.displayName = { $regex: searchText, $options: 'i' }
+                query.$or = [
+                    { displayName: { $regex: searchText, $options: 'i' } },
+                    { email: { $regex: searchText, $options: 'i' } }
+                ]
+            }
+            const cursor = userCollection.find(query).sort({ createdAt: -1 }).limit(3)
             const result = await cursor.toArray()
             res.send(result)
         })
+
+        // app.get('/users/:id', async (req, res) => {
+
+        // })
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email });
+            res.send({ role: user?.role || 'user' });
+        });
 
         app.post('/users', async (req, res) => {
             const user = req.body
@@ -98,7 +125,7 @@ async function run() {
             res.send(result)
         })
 
-        app.patch('/users/:id', async (req, res) => {
+        app.patch('/users/:id/role', verifyFBToken, verifyAdmin, async (req, res) => {
             const id = req.params.id
             const roleInfo = req.body
             const query = { _id: new ObjectId(id) }
@@ -121,21 +148,31 @@ async function run() {
         })
         // ---get  Rider data status bage ---
         app.get('/riders', async (req, res) => {
+            const { status, district, workStatus } = req.query
             const query = {}
-            if (req.query.status) {
-                query.status = req.query.status
+            if (status) {
+                query.status = status
+            }
+            if (district) {
+                query.district = district
+            }
+            if (workStatus) {
+                query.workStatus = workStatus
             }
             const cursor = riderCollection.find(query)
             const result = await cursor.toArray()
             res.send(result)
         })
         // upadate status of riders
-        app.patch(`/riders/:id`, verifyFBToken, async (req, res) => {
+        app.patch('/riders/:id', verifyFBToken, verifyAdmin, async (req, res) => {
             const id = req.params.id
             const status = req.body.status
             const query = { _id: new ObjectId(id) }
             const updateDoc = {
-                $set: { status: status }
+                $set: {
+                    status: status,
+                    workStatus: 'available'
+                }
             }
             const result = await riderCollection.updateOne(query, updateDoc)
             if (status === 'approved') {
@@ -162,10 +199,13 @@ async function run() {
         app.get('/parcels', async (req, res) => {
             // console.log(res)
             const query = {}
-            const { email } = req.query
+            const { email, deliveryStatus } = req.query
             // // parcel?email=&name=
             if (email) {
                 query.senderEmail = email
+            }
+            if (deliveryStatus) {
+                query.deliveryStatus = deliveryStatus
             }
             const options = { sort: { createdAt: -1 } }
             const cursor = parcelCollection.find(query, options)
@@ -294,6 +334,7 @@ async function run() {
                 const updateData = {
                     $set: {
                         paymentStatus: 'paid',
+                        deliveryStatus: 'pending-pickup',
                         trackingId: trackingId
 
                     }

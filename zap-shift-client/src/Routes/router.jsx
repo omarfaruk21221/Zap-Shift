@@ -27,6 +27,8 @@ import PaymentCencle from "../Pages/Dashboard/Payment/PaymentCencle";
 import PaymenthHistory from "../Pages/Dashboard/PaymenthHistory/PaymenthHistory";
 import ApproveRiders from "../Pages/Dashboard/ApproveRiders/ApproveRiders";
 import UsersManagement from "../Pages/Dashboard/UsersManagement/UsersManagement";
+import AdminRoutes from "./AdminRoutes";
+import AsignRiders from "../Pages/Dashboard/asignRiders/asignRiders";
 
 export const router = createBrowserRouter([
   {
@@ -125,15 +127,10 @@ export const router = createBrowserRouter([
         <DashboardLayout />
       </PrivetRoutes>
     ),
-    // element: <DashboardLayout />,
     children: [
       {
         path: "my-parcels",
         element: <MyParcels />,
-      },
-      {
-        path: "approve-riders",
-        element: <ApproveRiders />,
       },
       {
         path: "payment/:parcelId",
@@ -152,8 +149,30 @@ export const router = createBrowserRouter([
         element: <PaymenthHistory />,
       },
       {
+        path: "approve-riders",
+        // Component: ApproveRiders,
+        element: (
+          <AdminRoutes>
+            <ApproveRiders />
+          </AdminRoutes>
+        ),
+      },
+      {
+        path: "asign-riders",
+        element: (
+          <AdminRoutes>
+            <AsignRiders />
+          </AdminRoutes>
+        ),
+      },
+      {
         path: "users-Management",
-        element: <UsersManagement />,
+        // Component: UsersManagement,
+        element: (
+          <AdminRoutes>
+            <UsersManagement />
+          </AdminRoutes>
+        ),
       },
     ],
   },

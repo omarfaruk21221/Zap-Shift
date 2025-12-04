@@ -19,7 +19,7 @@ const ApproveRiders = () => {
   const updateRiderStatus = (rider, status) => {
     const updateInfo = {
       status: status,
-      email: rider.riderEmail, // FIXED ✔
+      email: rider.riderEmail,
     };
     axiosSecure.patch(`/riders/${rider._id}`, updateInfo).then((res) => {
       if (res.data.modifiedCount) {
@@ -89,7 +89,8 @@ const ApproveRiders = () => {
               <th>NID</th>
               <th>Number</th>
               <th>District</th>
-              <th>Rider Status</th>
+              <th>Application Status</th>
+              <th>Work Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -102,7 +103,16 @@ const ApproveRiders = () => {
                 <td>{rider.riderNID}</td>
                 <td>{rider.rideContact}</td>
                 <td>{rider.riderDistrict}</td>
-                <td>{rider.status}</td>
+                <td
+                  className={`bage ${
+                    rider.status === "approved"
+                      ? "text-success"
+                      : "text-warning"
+                  }`}
+                >
+                  {rider.status}
+                </td>
+                <td>{rider.workStatus}</td>
                 <td className=" space-x-2">
                   {/* -----acpprove---? ? */}
                   <button
