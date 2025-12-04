@@ -226,6 +226,32 @@ async function run() {
             const result = await parcelCollection.insertOne(parcel)
             res.send(result)
         })
+        app.patch('/parcels/:id', async (req, res) => {
+            const { riderId, riderName, riderEmail, rideContact } = req.body
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+
+                    deliveryStatus: 'driver_assigned',
+                    riderId: riderId,
+                    riderName: riderName,
+                    riderEmail: riderEmail,
+                    rideContact: rideContact
+                }
+            }
+            const result = await parcelCollection.updateOne(query, updatedDoc)
+            //// update rider information
+            const riderQuery = { _id: new ObjectId(riderId) }
+            const riderupdatedDoc = {
+                $set: {
+                    workStatus: "In_ delivery"
+                }
+            }
+            const riderResult = await riderCollection.updateOne(riderQuery, riderupdatedDoc)
+            res.send(riderResult)
+
+        })
         app.delete(`/parcels/:id`, async (req, res) => {
             const id = req.params.id
             const query = { _id: new ObjectId(id) }

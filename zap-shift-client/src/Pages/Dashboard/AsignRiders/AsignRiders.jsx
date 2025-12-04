@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useRef, useState } from "react";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const AsignRiders = () => {
   const [selectedParcel, setSelectedParcel] = useState(null);
   const axiosSecure = useAxiosSecure();
   const riderModalRef = useRef();
   //   =======parcel query =======
-  const { data: percels = [] } = useQuery({
+  const { data: percels = [], refetch: parcelsRefetch } = useQuery({
     queryKey: ["percels", "pending-pickup"],
     queryFn: async () => {
       const res = await axiosSecure.get(
@@ -33,10 +34,38 @@ const AsignRiders = () => {
     },
   });
 
-  const handleAsignRider = (parcel) => {
+  const openRiderModal = (parcel) => {
     // console.log(parcel.senderDistrict);
     riderModalRef.current.showModal();
     setSelectedParcel(parcel);
+  };
+
+  // ==== handle asign ===
+  const handleAsignRider = (rider) => {
+    const riderAssignInfo = {
+      riderId: rider._id,
+      riderName: rider.riderName,
+      riderEmail: rider.riderEmail,
+      rideContact: rider.rideContact,
+      parcelId: selectedParcel._id,
+    };
+    // console.log(riderAssignInfo.parcelId);
+    axiosSecure
+      .patch(`/parcels/${selectedParcel._id}`, riderAssignInfo)
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.modifiedCount) {
+          riderModalRef.current.close();
+          parcelsRefetch();
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Your work has been saved",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+      });
   };
   return (
     <div>
@@ -67,10 +96,10 @@ const AsignRiders = () => {
                 <td>{parcel.senderDistrict}</td>
                 <td>
                   <button
-                    onClick={() => handleAsignRider(parcel)}
+                    onClick={() => openRiderModal(parcel)}
                     className="btn btn-primary"
                   >
-                    Asign Rider
+                    Find Rider
                   </button>
                 </td>
               </tr>
@@ -82,18 +111,47 @@ const AsignRiders = () => {
       {/* modal */}
       <dialog
         ref={riderModalRef}
-        className="modal modal-bottom sm:modal-middle"
+        className="modal  modal-bottom sm:modal-middle"
       >
         <div className="modal-box">
-          <h3 className="font-bold text-lg">
+          <h3 className="font-bold text-xl">
             Available Riders!{riders.length}
           </h3>
-          <p className="py-4">
-            Press ESC key or click the button below to close
-          </p>
+          <span className="divider"></span>
+          <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+            <table className="table">
+              {/* head */}
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Rider Name</th>
+                  <th>Rider Email</th>
+                  <th>Rider Phone</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {riders.map((rider, i) => (
+                  <tr key={i}>
+                    <th>{i + 1}</th>
+                    <td>{rider.riderName}</td>
+                    <td>{rider.riderEmail}</td>
+                    <td>{rider.rideContact}</td>
+                    <td>
+                      <button
+                        onClick={() => handleAsignRider(rider)}
+                        className="btn btn-primary"
+                      >
+                        Asign
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="modal-action">
             <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
               <button className="btn">Close</button>
             </form>
           </div>
